@@ -780,7 +780,7 @@ def process_ban_check(message):
 
     try:
         # ===== 2️⃣ FETCH API =====
-        url = f"https://crownx-premium-bancheck.vercel.app/baninfo?uid={uid_input}"
+        url = f"https://crownx-premium-bancheck.lovable.app/baninfo?uid={uid_input}"
         response = requests.get(url, timeout=15)
 
         if response.status_code == 200:
