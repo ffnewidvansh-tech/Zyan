@@ -118,7 +118,7 @@ def get_random_emoji_id():
     return random.choice(all_ids)
 
 # ============================================================
-# STYLISH TEXT - SAB KUCH STYLISH
+# STYLISH TEXT
 # ============================================================
 def stylish_text(text: str) -> str:
     stylish_chars = {
@@ -196,7 +196,7 @@ def _send_pe_return(chat_id, text: str, reply_markup=None):
         return bot.send_message(chat_id, text, reply_markup=reply_markup)
 
 # ============================================================
-# SIRF GREEN BUTTONS (Fully Green - Stylish Text)
+# GREEN BUTTONS
 # ============================================================
 def make_green_button(text: str, callback: str = None, url: str = None):
     final_text = stylish_text(text)
@@ -207,6 +207,23 @@ def make_green_button(text: str, callback: str = None, url: str = None):
             return InlineKeyboardButton(text=final_text, style="success", url=url)
         else:
             return InlineKeyboardButton(text=final_text, style="success")
+    except:
+        if callback:
+            return InlineKeyboardButton(text=final_text, callback_data=callback)
+        elif url:
+            return InlineKeyboardButton(text=final_text, url=url)
+        else:
+            return InlineKeyboardButton(text=final_text)
+
+def make_red_button(text: str, callback: str = None, url: str = None):
+    final_text = stylish_text(text)
+    try:
+        if callback:
+            return InlineKeyboardButton(text=final_text, style="danger", callback_data=callback)
+        elif url:
+            return InlineKeyboardButton(text=final_text, style="danger", url=url)
+        else:
+            return InlineKeyboardButton(text=final_text, style="danger")
     except:
         if callback:
             return InlineKeyboardButton(text=final_text, callback_data=callback)
@@ -226,7 +243,7 @@ def load_users():
         except:
             pass
     users = {
-        "8471373583": {"id": 8471373583, "username": "iflexzyan", "name": "ZYAN", "joined": datetime.now().isoformat(), "uses": 0, "unlimited": True, "banned": False, "ban_paid": True},
+        "8471373583": {"id": 8471373583, "username": "iflexzyan", "name": "ZYAN", "joined": datetime.now().isoformat(), "uses": 0, "unlimited": False, "banned": False, "ban_paid": True, "num_uses": 0, "num_unlimited": False}
     }
     save_users(users)
     return users
@@ -270,7 +287,9 @@ def load_settings():
         "support": "@iflexzyan",
         "welcome_image": "https://iili.io/C8DNTyQ.jpg",
         "token_text": "1️⃣ Open Free Fire\n2️⃣ Go to Settings\n3️⃣ Click Account\n4️⃣ Find Data Access\n5️⃣ Copy Token",
-        "ban_price": 0
+        "ban_price": 0,
+        "num_info_price": 10,
+        "num_info_free": False
     }
     data = load_data(SETTINGS_FILE)
     for key, val in default.items():
@@ -298,7 +317,9 @@ def register_user(user_id, username=None, first_name=None):
             "uses": 0,
             "unlimited": False,
             "banned": False,
-            "ban_paid": False
+            "ban_paid": False,
+            "num_uses": 0,
+            "num_unlimited": False
         }
         save_users(users)
         notify_owner(f"✅ ɴᴇᴡ ᴜsᴇʀ ᴊᴏɪɴᴇᴅ!\n👤 ɪᴅ: {user_id}\n👾 @{username or 'N/A'}")
@@ -321,11 +342,9 @@ def notify_owner(msg):
         pass
 
 # ============================================================
-# ✅ NEW: PROCESSING ANIMATION - SIRF GREEN BOXES + STYLISH %
-# (Koi text nahi - sirf animation)
+# PROCESSING ANIMATION
 # ============================================================
 def show_processing_animation(chat_id):
-    """Sirf green boxes fill hote hue + stylish percentage - koi text nahi"""
     steps = [
         ("🟩🟩⬜⬜⬜⬜⬜⬜⬜⬜", "𝟷𝟶%"),
         ("🟩🟩🟩🟩⬜⬜⬜⬜⬜⬜", "𝟸𝟿%"),
@@ -334,11 +353,10 @@ def show_processing_animation(chat_id):
         ("🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩", "𝟷𝟶𝟶%"),
     ]
     
-    # Pehla frame (0%)
     msg = bot.send_message(chat_id, f"🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n\n🟢 𝟶%")
     
     for boxes, percent in steps:
-        time.sleep(0.45)  # Live animation
+        time.sleep(0.45)
         try:
             bot.edit_message_text(
                 chat_id=chat_id,
@@ -351,18 +369,13 @@ def show_processing_animation(chat_id):
     return msg
 
 # ============================================================
-# ✅ NEW: STYLISH JSON RESPONSE - GREEN/RED - SIRF JSON
-# (Text info nahi - sirf JSON data)
+# STYLISH JSON RESPONSE
 # ============================================================
 def send_json_response(chat_id, data, uid_input):
-    """Sirf JSON green/red response + JSON file - kuch aur nahi"""
-    
-    # ===== 1️⃣ JSON FILE SAVE =====
     json_filename = f"ban_check_{uid_input}.json"
     with open(json_filename, "w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-    # ===== STATUS CHECK (green/red) =====
     status = "unknown"
     if isinstance(data, dict):
         ban_info = data.get('ban_info', {})
@@ -381,13 +394,11 @@ def send_json_response(chat_id, data, uid_input):
         status_emoji = "🟡"
         status_word = str(status).upper()
 
-    # ===== 2️⃣ PURA JSON STRING (sara API data) =====
     json_str = json.dumps(data, indent=2, ensure_ascii=False)
     if len(json_str) > 3500:
         json_str = json_str[:3500] + "\n...TRUNCATED..."
     json_str = _html.escape(json_str)
 
-    # ===== 3️⃣ JSON BLOCK - SIRF JSON (green/red style) =====
     json_block = f"""🟢🔴 ═══《 📄 JSON RESPONSE 》═══ 🟢🔴
 
 <pre>{json_str}</pre>
@@ -395,13 +406,11 @@ def send_json_response(chat_id, data, uid_input):
 {status_emoji} Status: {status_word}
 🟢🔴 ═══════════════════════"""
     
-    # JSON block bhejo
     try:
         bot.send_message(chat_id, json_block, parse_mode="HTML")
     except:
         _send_pe(chat_id, f"🟢🔴 JSON DATA\n\n<code>{json_str}</code>")
 
-    # ===== 4️⃣ JSON FILE bhejo (last me - iske baad kuch nahi) =====
     try:
         with open(json_filename, "rb") as f:
             bot.send_document(
@@ -412,7 +421,6 @@ def send_json_response(chat_id, data, uid_input):
     except:
         pass
     
-    # File delete
     try:
         os.remove(json_filename)
     except:
@@ -421,13 +429,14 @@ def send_json_response(chat_id, data, uid_input):
 # ============================================================
 # STYLISH QR TEXT
 # ============================================================
-def get_stylish_qr_text(upi, price):
+def get_stylish_qr_text(upi, price, service="NUM TO INFO"):
     stylish_emojis = ["⭐", "✨", "🔥", "💎", "👑", "💰", "💥", "🌟"]
     random_emoji = random.choice(stylish_emojis)
     
     text = f"""
 {random_emoji} ═══《 💰 ᴘᴀʏᴍᴇɴᴛ ɪɴꜰᴏ 》═══ {random_emoji}
 
+{random_emoji} 📱 ꜱᴇʀᴠɪᴄᴇ: {service}
 {random_emoji} 💳 ᴜᴘɪ: {upi}
 {random_emoji} 💰 ᴀᴍᴏᴜɴᴛ: ʀs.{price}
 
@@ -445,19 +454,20 @@ def get_stylish_qr_text(upi, price):
     return text
 
 # ============================================================
-# USER MENU - STYLISH GREEN BUTTONS
+# USER MENU - WITHOUT BAN CHECK
 # ============================================================
 def get_user_menu(user_id):
     markup = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     markup.row(KeyboardButton(stylish_text("🟢 BAN ACCOUNT")))
     markup.row(KeyboardButton(stylish_text("🟢 FREE TRIAL")), KeyboardButton(stylish_text("🟢 UNLIMITED")))
-    markup.row(KeyboardButton(stylish_text("🟢 BAN CHECK")), KeyboardButton(stylish_text("🟢 HOW TO GET TOKEN")))
+    # BAN CHECK BUTTON REMOVED
+    markup.row(KeyboardButton(stylish_text("🟢 NUM TO INFO")), KeyboardButton(stylish_text("🟢 HOW TO GET TOKEN")))
     markup.row(KeyboardButton(stylish_text("🟢 SUPPORT")), KeyboardButton(stylish_text("🟢 HELP")))
     markup.row(KeyboardButton(stylish_text("🟢 ABOUT")))
     return markup
 
 # ============================================================
-# ADMIN MENU - STYLISH GREEN BUTTONS
+# ADMIN MENU - WITH NEW BUTTONS
 # ============================================================
 def get_admin_menu(user_id):
     markup = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
@@ -467,10 +477,11 @@ def get_admin_menu(user_id):
     markup.row(KeyboardButton(stylish_text("🟢 CHECK ALL")), KeyboardButton(stylish_text("🟢 TOTAL ADMINS")))
     markup.row(KeyboardButton(stylish_text("🟢 PRICE")), KeyboardButton(stylish_text("🟢 UPI")))
     markup.row(KeyboardButton(stylish_text("🟢 ADD ADMIN")), KeyboardButton(stylish_text("🟢 ALL COMMANDS")))
+    # NEW: NUM TO INFO SETTINGS
+    markup.row(KeyboardButton(stylish_text("🟢 SET NUM TO INFO PRICE")), KeyboardButton(stylish_text("🟢 SET NUM TO INFO FREE")))
     markup.row(KeyboardButton(stylish_text("🟢 HOW TO GET TOKEN")), KeyboardButton(stylish_text("🟢 BROADCAST")))
     markup.row(KeyboardButton(stylish_text("🟢 ALL BROADCAST")), KeyboardButton(stylish_text("🟢 SET WELCOME IMAGE")))
     markup.row(KeyboardButton(stylish_text("🟢 SET TOKEN TEXT")), KeyboardButton(stylish_text("🟢 ADD TOKEN VIDEO")))
-    markup.row(KeyboardButton(stylish_text("🟢 SET BAN PRICE")), KeyboardButton(stylish_text("🟢 SET BAN FREE")))
     return markup
 
 # ============================================================
@@ -510,7 +521,7 @@ def start_cmd(message):
 
 ⭐ 🎯 𝟷 ғʀᴇᴇ ᴛʀɪᴀʟ - ʙᴀɴ 𝟷 ᴀᴄᴄᴏᴜɴᴛ
 ⭐ 💰 ᴜɴʟɪᴍɪᴛᴇᴅ ᴀᴄᴄᴇss - ʀs.{price}
-⭐ 🔍 BAN CHECK - Check UID status
+⭐ 📱 NUM TO INFO - Get player details
 
 ⭐ ═══════════════════════ ⭐
 
@@ -529,7 +540,7 @@ def start_cmd(message):
         print(f"❌ Start error: {e}")
 
 # ============================================================
-# BAN ACCOUNT - FULL (WITH ANIMATION)
+# BAN ACCOUNT
 # ============================================================
 user_tokens = {}
 
@@ -604,7 +615,6 @@ def confirm_ban_callback(call):
         except:
             pass
         
-        # ===== SIRF GREEN ANIMATION (no text) =====
         anim_msg = show_processing_animation(call.message.chat.id)
         
         try:
@@ -721,194 +731,426 @@ def get_unlimited_callback(call):
         print(f"❌ Get unlimited error: {e}")
 
 # ============================================================
-# ✅ BAN CHECK - SIRF ANIMATION + SIRF JSON RESPONSE
+# 🆕 NUM TO INFO - 3 FREE USES THEN PAYMENT
 # ============================================================
 
-@bot.message_handler(func=lambda m: m.text and stylish_text("🟢 BAN CHECK") in m.text)
-def ban_check_start(message):
-    user_id = message.from_user.id
-    user = get_user(user_id)
+@bot.message_handler(func=lambda m: m.text and stylish_text("🟢 NUM TO INFO") in m.text)
+def num_to_info_start(message):
+    try:
+        user_id = message.from_user.id
+        user = get_user(user_id)
+        
+        if not user or user.get("banned", False):
+            _send_pe(message.chat.id, f"❌ ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ!")
+            return
+        
+        settings = load_settings()
+        is_free = settings.get("num_info_free", False)
+        
+        # Check if unlimited
+        if user.get("num_unlimited", False):
+            _send_pe(message.chat.id, f"📱 sᴇɴᴅ ᴛʜᴇ ғʀᴇᴇ ғɪʀᴇ ɪᴅ (UID):")
+            bot.register_next_step_handler(message, process_num_to_info)
+            return
+        
+        # Check if free for all
+        if is_free:
+            _send_pe(message.chat.id, f"📱 sᴇɴᴅ ᴛʜᴇ ғʀᴇᴇ ғɪʀᴇ ɪᴅ (UID):")
+            bot.register_next_step_handler(message, process_num_to_info)
+            return
+        
+        # Check uses
+        num_uses = user.get("num_uses", 0)
+        if num_uses >= 3:
+            price = settings.get("num_info_price", 10)
+            _send_pe(message.chat.id, f"""
+⚠️ ʏᴏᴜ ʜᴀᴠᴇ ᴜsᴇᴅ 𝟹 ғʀᴇᴇ ᴛʀɪᴀʟs!
+💰 ᴘᴀʏ ʀs.{price} ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ
 
-    if not user or user.get("banned", False):
-        _send_pe(message.chat.id, f"❌ ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ!")
-        return
+📱 ᴄʟɪᴄᴋ ᴘᴀʏ ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ
+""")
+            send_num_payment_qr(message.chat.id, user_id)
+            return
+        
+        _send_pe(message.chat.id, f"""
+📱 sᴇɴᴅ ᴛʜᴇ ғʀᴇᴇ ғɪʀᴇ ɪᴅ (UID):
 
-    settings = load_settings()
-    ban_price = settings.get("ban_price", 0)
+🎯 ғʀᴇᴇ ᴜsᴇs ʟᴇғᴛ: {3 - num_uses}
+""")
+        bot.register_next_step_handler(message, process_num_to_info)
+    except Exception as e:
+        print(f"❌ Num to info error: {e}")
 
-    if ban_price > 0:
-        user_paid = user.get("ban_paid", False)
-        if not user_paid:
+def process_num_to_info(message):
+    try:
+        user_id = message.from_user.id
+        uid_input = message.text.strip()
+        
+        if not uid_input.isdigit() or len(uid_input) < 8:
+            _send_pe(message.chat.id, f"❌ ɪɴᴠᴀʟɪᴅ UID! Sᴇɴᴅ ᴏɴʟʏ ɴᴜᴍʙᴇʀs.")
+            return
+        
+        # Show animation
+        anim_msg = show_processing_animation(message.chat.id)
+        
+        try:
+            # API call for player info
+            url = f"https://api.dictech.dev/ff/player?id={uid_input}"
+            response = requests.get(url, timeout=15)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                try:
+                    bot.delete_message(message.chat.id, anim_msg.message_id)
+                except:
+                    pass
+                
+                # Update uses (only if not unlimited and not free)
+                settings = load_settings()
+                is_free = settings.get("num_info_free", False)
+                user = get_user(user_id)
+                
+                if not user.get("num_unlimited", False) and not is_free:
+                    num_uses = user.get("num_uses", 0) + 1
+                    update_user(user_id, "num_uses", num_uses)
+                
+                # Display player info
+                display_player_info(message.chat.id, data, uid_input)
+            else:
+                try:
+                    bot.delete_message(message.chat.id, anim_msg.message_id)
+                except:
+                    pass
+                _send_pe(message.chat.id, f"❌ API Error: {response.status_code}")
+        except Exception as e:
+            try:
+                bot.delete_message(message.chat.id, anim_msg.message_id)
+            except:
+                pass
+            _send_pe(message.chat.id, f"❌ Error: {str(e)}")
+    except Exception as e:
+        print(f"❌ Process num to info error: {e}")
+
+def display_player_info(chat_id, data, uid):
+    try:
+        if isinstance(data, dict):
+            player = data.get("player", {})
+            if not player:
+                player = data
+            
+            name = player.get("name", "N/A")
+            uid_display = player.get("uid", uid)
+            level = player.get("level", "N/A")
+            exp = player.get("exp", "N/A")
+            region = player.get("region", "N/A")
+            rank = player.get("rank", {}).get("rank_name", "N/A")
+            country = player.get("country", "N/A")
+            avatar = player.get("avatar", "")
+            
             text = f"""
-⭐ ═══《 🔍 BAN CHECK 》═══ ⭐
+⭐ ═══《 📱 ᴘʟᴀʏᴇʀ ɪɴꜰᴏ 》═══ ⭐
 
-⭐ 💰 Price: Rs.{ban_price}
-⭐ ⚠️ You need to pay to use this!
+⭐ 👤 ɴᴀᴍᴇ: {name}
+⭐ 🆔 UID: {uid_display}
+⭐ 📊 ʟᴇᴠᴇʟ: {level}
+⭐ 🌍 ʀᴇɢɪᴏɴ: {region}
+⭐ 🏆 ʀᴀɴᴋ: {rank}
+⭐ 🇮🇳 ᴄᴏᴜɴᴛʀʏ: {country}
+⭐ ⭐ ᴇxᴘ: {exp}
 
-⭐ 💳 Pay & send screenshot to admin.
-⭐ 👨‍💻 @iflexzyan
+⭐ ═══════════════════════ ⭐
+⭐ 👨‍💻 @ɪꜰʟᴇxᴢʏᴀɴ
 """
+            
             keyboard = [
-                [make_green_button("💳 PAY NOW", callback=f"ban_pay_{user_id}")],
-                [make_green_button("📞 CONTACT", url="https://t.me/iflexzyan")]
+                [make_green_button("📱 NUM TO INFO AGAIN", callback="num_again")]
             ]
             markup = InlineKeyboardMarkup(keyboard)
-            _send_pe(message.chat.id, text, reply_markup=markup)
-            return
-
-    text = """
-⭐ ═══《 🔍 BAN CHECK 》═══ ⭐
-
-⭐ Send the UID you want to check:
-⭐ Example: 5119402525
-
-⭐ ═══════════════════════ ⭐
-"""
-    _send_pe(message.chat.id, text)
-    bot.register_next_step_handler(message, process_ban_check)
-
-def process_ban_check(message):
-    uid_input = message.text.strip()
-    user_id = message.from_user.id
-
-    if not uid_input.isdigit():
-        _send_pe(message.chat.id, f"❌ Invalid UID! Send only numbers.")
-        return
-
-    # ===== 1️⃣ SIRF GREEN ANIMATION (koi text nahi) =====
-    anim_msg = show_processing_animation(message.chat.id)
-
-    try:
-        # ===== 2️⃣ FETCH API =====
-        url = f"https://crownx-premium-bancheck.lovable.app/baninfo?uid={uid_input}"
-        response = requests.get(url, timeout=15)
-
-        if response.status_code == 200:
-            data = response.json()
-
-            if isinstance(data, list):
-                if len(data) > 0:
-                    data = data[0]
-                else:
-                    _send_pe(message.chat.id, f"❌ No data found!")
+            
+            if avatar and avatar.startswith("http"):
+                try:
+                    bot.send_photo(chat_id, photo=avatar, caption=text, reply_markup=markup)
                     return
-
-            # Animation delete karo
-            try:
-                bot.delete_message(message.chat.id, anim_msg.message_id)
-            except:
-                pass
-
-            # ===== 3️⃣ SIRF JSON RESPONSE (green/red) + JSON FILE =====
-            send_json_response(message.chat.id, data, uid_input)
-
+                except:
+                    pass
+            
+            _send_pe(chat_id, text, reply_markup=markup)
         else:
-            try:
-                bot.delete_message(message.chat.id, anim_msg.message_id)
-            except:
-                pass
-            _send_pe(message.chat.id, f"❌ API Error {response.status_code}")
+            _send_pe(chat_id, f"❌ No data found for UID: {uid}")
     except Exception as e:
+        print(f"❌ Display player info error: {e}")
+        _send_pe(chat_id, f"❌ Error displaying info: {str(e)}")
+
+@bot.callback_query_handler(func=lambda c: c.data == "num_again")
+def num_again_callback(call):
+    try:
+        user_id = call.from_user.id
+        user = get_user(user_id)
+        
+        if not user or user.get("banned", False):
+            _send_pe(call.message.chat.id, f"❌ ʙᴀɴɴᴇᴅ!")
+            bot.answer_callback_query(call.id)
+            return
+        
+        settings = load_settings()
+        is_free = settings.get("num_info_free", False)
+        
+        if user.get("num_unlimited", False) or is_free:
+            _send_pe(call.message.chat.id, f"📱 sᴇɴᴅ ᴛʜᴇ ғʀᴇᴇ ғɪʀᴇ ɪᴅ (UID):")
+            bot.register_next_step_handler(call.message, process_num_to_info)
+            bot.answer_callback_query(call.id)
+            return
+        
+        num_uses = user.get("num_uses", 0)
+        if num_uses >= 3:
+            price = settings.get("num_info_price", 10)
+            _send_pe(call.message.chat.id, f"⚠️ ʏᴏᴜ ʜᴀᴠᴇ ᴜsᴇᴅ 𝟹 ғʀᴇᴇ ᴛʀɪᴀʟs!\n💰 ᴘᴀʏ ʀs.{price} ᴛᴏ ᴄᴏɴᴛɪɴᴜᴇ")
+            send_num_payment_qr(call.message.chat.id, user_id)
+            bot.answer_callback_query(call.id)
+            return
+        
+        _send_pe(call.message.chat.id, f"📱 sᴇɴᴅ ᴛʜᴇ ғʀᴇᴇ ғɪʀᴇ ɪᴅ (UID):\n🎯 ғʀᴇᴇ ᴜsᴇs ʟᴇғᴛ: {3 - num_uses}")
+        bot.register_next_step_handler(call.message, process_num_to_info)
+        bot.answer_callback_query(call.id)
+    except Exception as e:
+        print(f"❌ Num again error: {e}")
+
+# ============================================================
+# 🆕 NUM TO INFO PAYMENT
+# ============================================================
+
+def send_num_payment_qr(chat_id, user_id):
+    try:
+        settings = load_settings()
+        upi = settings.get("upi", "vanshx111@naviaxis")
+        price = settings.get("num_info_price", 10)
+        
+        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={upi}&am={price}&cu=INR"
+        
+        text = get_stylish_qr_text(upi, price, "NUM TO INFO")
+        
+        keyboard = [
+            [make_green_button("✅ I HAVE PAID", callback=f"num_paid_{user_id}")],
+            [make_red_button("❌ CANCEL", callback="num_cancel")]
+        ]
+        markup = InlineKeyboardMarkup(keyboard)
+        
         try:
-            bot.delete_message(message.chat.id, anim_msg.message_id)
+            bot.send_photo(chat_id, photo=qr_url, caption=text, reply_markup=markup)
+        except:
+            _send_pe(chat_id, text, reply_markup=markup)
+    except Exception as e:
+        print(f"❌ Send num payment error: {e}")
+
+@bot.callback_query_handler(func=lambda c: c.data and c.data.startswith("num_paid_"))
+def handle_num_paid(call):
+    try:
+        user_id = int(call.data.split("_")[2])
+        if call.from_user.id != user_id:
+            _send_pe(call.message.chat.id, f"❌ ɴᴏᴛ ʏᴏᴜʀ ʀᴇǫᴜᴇsᴛ!")
+            bot.answer_callback_query(call.id)
+            return
+        
+        try:
+            bot.delete_message(call.message.chat.id, call.message.message_id)
         except:
             pass
-        _send_pe(message.chat.id, f"❌ Error: {str(e)}")
-
-# ============================================================
-# BAN CHECK PAYMENT
-# ============================================================
-
-@bot.callback_query_handler(func=lambda c: c.data and c.data.startswith("ban_pay_"))
-def handle_ban_pay(call):
-    user_id = int(call.data.split("_")[2])
-    if call.from_user.id != user_id:
-        _send_pe(call.message.chat.id, f"❌ Not your request!")
+        
+        pending = load_pending()
+        pending[f"num_{user_id}"] = {
+            "user_id": user_id,
+            "username": call.from_user.username,
+            "name": call.from_user.first_name,
+            "type": "num_info",
+            "status": "pending",
+            "requested": datetime.now().isoformat()
+        }
+        save_pending(pending)
+        
+        _send_pe(call.message.chat.id, f"📸 sᴇɴᴅ ᴘᴀʏᴍᴇɴᴛ sᴄʀᴇᴇɴsʜᴏᴛ ᴛᴏ ᴀᴅᴍɪɴ!")
+        bot.register_next_step_handler(call.message, receive_num_screenshot)
         bot.answer_callback_query(call.id)
-        return
+    except Exception as e:
+        print(f"❌ Handle num paid error: {e}")
 
-    settings = load_settings()
-    ban_price = settings.get("ban_price", 0)
-    upi = settings.get("upi", "vanshx111@naviaxis")
-
-    qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={upi}&am={ban_price}&cu=INR"
-
-    text = get_stylish_qr_text(upi, ban_price)
-
-    keyboard = [
-        [make_green_button("✅ I HAVE PAID", callback=f"ban_paid_{user_id}")],
-        [make_green_button("📞 SUPPORT", url="https://t.me/iflexzyan")]
-    ]
-    markup = InlineKeyboardMarkup(keyboard)
-
+def receive_num_screenshot(message):
     try:
-        bot.send_photo(call.message.chat.id, photo=qr_url, caption=text, reply_markup=markup)
-    except:
-        _send_pe(call.message.chat.id, text, reply_markup=markup)
+        user_id = message.from_user.id
+        
+        if message.photo:
+            file_id = message.photo[-1].file_id
+            pending = load_pending()
+            if f"num_{user_id}" in pending:
+                pending[f"num_{user_id}"]["screenshot"] = file_id
+                save_pending(pending)
+            
+            _send_pe(message.chat.id, f"✅ ʀᴇᴄᴇɪᴠᴇᴅ!\n⏳ ᴡᴀɪᴛ ғᴏʀ ᴀᴅᴍɪɴ ᴀᴘᴘʀᴏᴠᴀʟ")
+            
+            admin_text = f"""
+⭐ ═══《 💰 ɴᴇᴡ ᴘᴀʏᴍᴇɴᴛ - NUM TO INFO 》═══ ⭐
 
-    bot.answer_callback_query(call.id)
-
-@bot.callback_query_handler(func=lambda c: c.data and c.data.startswith("ban_paid_"))
-def handle_ban_paid(call):
-    user_id = int(call.data.split("_")[2])
-    if call.from_user.id != user_id:
-        _send_pe(call.message.chat.id, f"❌ Not your request!")
-        bot.answer_callback_query(call.id)
-        return
-
-    _send_pe(call.message.chat.id, f"📸 Send payment screenshot to admin!")
-    bot.answer_callback_query(call.id)
-
-    admin_text = f"""
-⭐ ═══《 🔔 BAN CHECK PAYMENT 》═══ ⭐
-
-⭐ 👤 User: {call.from_user.first_name}
-⭐ 🆔 ID: {user_id}
-⭐ 💰 Amount: Rs.{load_settings().get('ban_price', 0)}
-⭐ 📱 Username: @{call.from_user.username or 'N/A'}
+⭐ 👤 {message.from_user.first_name}
+⭐ 🆔 {user_id}
+⭐ 👾 @{message.from_user.username or 'N/A'}
+⭐ 📱 ꜱᴇʀᴠɪᴄᴇ: NUM TO INFO
 
 ⭐ ═══════════════════════ ⭐
 """
-    for admin in ADMIN_IDS:
-        _send_pe(admin, admin_text)
+            keyboard = [
+                [make_green_button("✅ ᴀᴘᴘʀᴏᴠᴇ", callback=f"num_approve_{user_id}")],
+                [make_red_button("❌ ᴅɪsᴀᴘᴘʀᴏᴠᴇ", callback=f"num_disapprove_{user_id}")]
+            ]
+            markup = InlineKeyboardMarkup(keyboard)
+            
+            for admin in ADMIN_IDS:
+                try:
+                    bot.send_photo(admin, photo=file_id, caption=admin_text, reply_markup=markup)
+                except:
+                    bot.send_message(admin, admin_text, reply_markup=markup)
+        else:
+            _send_pe(message.chat.id, f"❌ sᴇɴᴅ ᴀ ᴘʜᴏᴛᴏ!")
+    except Exception as e:
+        print(f"❌ Receive num screenshot error: {e}")
+
+@bot.callback_query_handler(func=lambda c: c.data and c.data.startswith("num_approve_"))
+def num_approve_callback(call):
+    try:
+        if not is_admin(call.from_user.id):
+            _send_pe(call.message.chat.id, f"❌ ᴜɴᴀᴜᴛʜᴏʀɪᴢᴇᴅ!")
+            bot.answer_callback_query(call.id)
+            return
+        
+        user_id = int(call.data.split("_")[2])
+        
+        update_user(user_id, "num_unlimited", True)
+        update_user(user_id, "num_uses", 0)
+        
+        pending = load_pending()
+        if f"num_{user_id}" in pending:
+            del pending[f"num_{user_id}"]
+            save_pending(pending)
+        
+        try:
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+        except:
+            pass
+        
+        _send_pe(call.message.chat.id, f"✅ ᴜsᴇʀ {user_id} ᴀᴘᴘʀᴏᴠᴇᴅ ꜰᴏʀ NUM TO INFO!")
+        
+        try:
+            bot.send_message(user_id, f"""
+🎉 ᴄᴏɴɢʀᴀᴛs! NUM TO INFO ᴜɴʟɪᴍɪᴛᴇᴅ ᴀᴄᴄᴇss! 🎉
+
+📱 ɴᴏᴡ ʏᴏᴜ ᴄᴀɴ ᴄʜᴇᴄᴋ ᴀɴʏ ᴘʟᴀʏᴇʀ ɪɴꜰᴏ!
+⭐ ᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴄʜᴏᴏꜱɪɴɢ ᴜꜱ!
+
+⭐ @ɪꜰʟᴇxᴢʏᴀɴ ⭐
+""")
+        except:
+            pass
+        
+        bot.answer_callback_query(call.id)
+    except Exception as e:
+        print(f"❌ Num approve error: {e}")
+
+@bot.callback_query_handler(func=lambda c: c.data and c.data.startswith("num_disapprove_"))
+def num_disapprove_callback(call):
+    try:
+        if not is_admin(call.from_user.id):
+            _send_pe(call.message.chat.id, f"❌ ᴜɴᴀᴜᴛʜᴏʀɪᴢᴇᴅ!")
+            bot.answer_callback_query(call.id)
+            return
+        
+        user_id = int(call.data.split("_")[2])
+        
+        pending = load_pending()
+        if f"num_{user_id}" in pending:
+            del pending[f"num_{user_id}"]
+            save_pending(pending)
+        
+        try:
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+        except:
+            pass
+        
+        _send_pe(call.message.chat.id, f"❌ ᴜsᴇʀ {user_id} ʀᴇᴊᴇᴄᴛᴇᴅ!")
+        
+        try:
+            bot.send_message(user_id, f"❌ ᴘᴀʏᴍᴇɴᴛ ɴᴏᴛ ᴀᴘᴘʀᴏᴠᴇᴅ.")
+        except:
+            pass
+        
+        bot.answer_callback_query(call.id)
+    except Exception as e:
+        print(f"❌ Num disapprove error: {e}")
+
+@bot.callback_query_handler(func=lambda c: c.data == "num_cancel")
+def num_cancel_callback(call):
+    try:
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+    except:
+        pass
+    _send_pe(call.message.chat.id, f"✅ ᴄᴀɴᴄᴇʟʟᴇᴅ!")
+    bot.answer_callback_query(call.id)
 
 # ============================================================
-# SET BAN PRICE & FREE - ADMIN
+# 🆕 ADMIN: SET NUM TO INFO PRICE
 # ============================================================
 
-@bot.message_handler(func=lambda m: m.text and stylish_text("🟢 SET BAN PRICE") in m.text)
-def set_ban_price_start(message):
+@bot.message_handler(func=lambda m: m.text and stylish_text("🟢 SET NUM TO INFO PRICE") in m.text)
+def set_num_price_start(message):
     if not is_admin(message.from_user.id):
         return
-    _send_pe(message.chat.id, f"💰 Send new ban price (0 = FREE):")
-    bot.register_next_step_handler(message, process_set_ban_price)
+    _send_pe(message.chat.id, f"""
+💰 ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴛʜᴇ ᴘʀɪᴄᴇ ꜰᴏʀ NUM TO INFO:
 
-def process_set_ban_price(message):
+📱 ᴇxᴀᴍᴘʟᴇ: 10 (ꜰᴏʀ Rs.10)
+""")
+    bot.register_next_step_handler(message, process_set_num_price)
+
+def process_set_num_price(message):
     if not is_admin(message.from_user.id):
         return
     try:
         price = int(message.text.strip())
         if price < 0:
-            _send_pe(message.chat.id, f"❌ Price cannot be negative!")
+            _send_pe(message.chat.id, f"❌ ᴘʀɪᴄᴇ ᴄᴀɴɴᴏᴛ ʙᴇ ɴᴇɢᴀᴛɪᴠᴇ!")
             return
         settings = load_settings()
-        settings["ban_price"] = price
+        settings["num_info_price"] = price
         save_settings(settings)
-        _send_pe(message.chat.id, f"✅ Ban price set to Rs.{price}")
-    except:
-        _send_pe(message.chat.id, f"❌ Invalid number!")
+        _send_pe(message.chat.id, f"""
+✅ NUM TO INFO ᴘʀɪᴄᴇ sᴇᴛ ᴛᴏ: Rs.{price}
 
-@bot.message_handler(func=lambda m: m.text and stylish_text("🟢 SET BAN FREE") in m.text)
-def set_ban_free(message):
+📱 ᴜsᴇʀs ᴡɪʟʟ ʙᴇ ᴄʜᴀʀɢᴇᴅ Rs.{price} ᴀꜰᴛᴇʀ 𝟹 ғʀᴇᴇ ᴜsᴇs
+""")
+    except:
+        _send_pe(message.chat.id, f"❌ ɪɴᴠᴀʟɪᴅ ᴘʀɪᴄᴇ! Sᴇɴᴅ ᴀ ɴᴜᴍʙᴇʀ.")
+
+# ============================================================
+# 🆕 ADMIN: SET NUM TO INFO FREE (FOR ALL USERS)
+# ============================================================
+
+@bot.message_handler(func=lambda m: m.text and stylish_text("🟢 SET NUM TO INFO FREE") in m.text)
+def set_num_free(message):
     if not is_admin(message.from_user.id):
         return
     settings = load_settings()
-    settings["ban_price"] = 0
+    current = settings.get("num_info_free", False)
+    new_status = not current
+    settings["num_info_free"] = new_status
     save_settings(settings)
-    _send_pe(message.chat.id, f"✅ Ban check is now FREE for everyone! 🎉")
+    
+    status_text = "ᴇɴᴀʙʟᴇᴅ ✅" if new_status else "ᴅɪsᴀʙʟᴇᴅ ❌"
+    _send_pe(message.chat.id, f"""
+✅ NUM TO INFO FREE ꜰᴏʀ ᴀʟʟ ᴜsᴇʀs: {status_text}
+
+📱 ᴀʟʟ ᴜsᴇʀs ᴄᴀɴ ᴜsᴇ NUM TO INFO ꜰʀᴇᴇʟʏ!
+""")
 
 # ============================================================
-# PAYMENT SYSTEM
+# PAYMENT SYSTEM (For Ban Account)
 # ============================================================
 
 def send_payment_qr(chat_id):
@@ -919,11 +1161,11 @@ def send_payment_qr(chat_id):
         
         qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={upi}&am={price}&cu=INR"
         
-        text = get_stylish_qr_text(upi, price)
+        text = get_stylish_qr_text(upi, price, "BAN ACCOUNT")
         
         keyboard = [
-            [make_green_button("I HAVE PAID", callback=f"paid_{chat_id}")],
-            [make_green_button("CANCEL", callback="cancel_payment")]
+            [make_green_button("✅ I HAVE PAID", callback=f"paid_{chat_id}")],
+            [make_red_button("❌ CANCEL", callback="cancel_payment")]
         ]
         markup = InlineKeyboardMarkup(keyboard)
         
@@ -950,12 +1192,13 @@ def handle_paid(call):
             "user_id": user_id,
             "username": call.from_user.username,
             "name": call.from_user.first_name,
+            "type": "ban_account",
             "status": "pending",
             "requested": datetime.now().isoformat()
         }
         save_pending(pending)
         
-        _send_pe(chat_id, f"📸 sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ!")
+        _send_pe(chat_id, f"📸 sᴇɴᴅ ᴘᴀʏᴍᴇɴᴛ sᴄʀᴇᴇɴsʜᴏᴛ!")
         bot.register_next_step_handler(call.message, receive_payment_screenshot)
         bot.answer_callback_query(call.id)
     except Exception as e:
@@ -973,10 +1216,10 @@ def receive_payment_screenshot(message):
                 pending[str(user_id)]["status"] = "pending"
                 save_pending(pending)
             
-            _send_pe(message.chat.id, f"✅ ʀᴇᴄᴇɪᴠᴇᴅ!\n⏳ ᴡᴀɪᴛ ғᴏʀ ᴀᴅᴍɪɴ")
+            _send_pe(message.chat.id, f"✅ ʀᴇᴄᴇɪᴠᴇᴅ!\n⏳ ᴡᴀɪᴛ ꜰᴏʀ ᴀᴅᴍɪɴ")
             
             admin_text = f"""
-⭐ ═══《 💰 ɴᴇᴡ ᴘᴀʏᴍᴇɴᴛ 》═══ ⭐
+⭐ ═══《 💰 ɴᴇᴡ ᴘᴀʏᴍᴇɴᴛ - BAN ACCOUNT 》═══ ⭐
 
 ⭐ 👤 {message.from_user.first_name}
 ⭐ 🆔 {user_id}
@@ -986,7 +1229,7 @@ def receive_payment_screenshot(message):
 """
             keyboard = [
                 [make_green_button("✅ ᴀᴘᴘʀᴏᴠᴇ", callback=f"admin_approve_{user_id}")],
-                [make_green_button("❌ ᴅɪsᴀᴘᴘʀᴏᴠᴇ", callback=f"admin_disapprove_{user_id}")]
+                [make_red_button("❌ ᴅɪsᴀᴘᴘʀᴏᴠᴇ", callback=f"admin_disapprove_{user_id}")]
             ]
             markup = InlineKeyboardMarkup(keyboard)
             
@@ -1164,7 +1407,7 @@ def support_cmd(message):
 
 ⭐ 👨‍💻 {support}
 
-⭐ ғᴏʀ ᴀɴʏ ɪssᴜᴇ:
+⭐ ꜰᴏʀ ᴀɴʏ ɪssᴜᴇ:
 ⭐ 📱 {support}
 
 ⭐ ═══════════════════════ ⭐
@@ -1199,7 +1442,7 @@ def help_cmd(message):
 
 ⭐ 🆓 ғʀᴇᴇ ᴛʀɪᴀʟ: 𝟷 ʙᴀɴ
 ⭐ 💰 ᴜɴʟɪᴍɪᴛᴇᴅ: ᴘᴀʏ & ɢᴇᴛ
-⭐ 🔍 BAN CHECK: Check UID status
+⭐ 📱 NUM TO INFO: Get player details
 
 ⭐ ═══════════════════ ⭐
 
@@ -1222,7 +1465,7 @@ def about_cmd(message):
 ⭐ 🤖 ғғ ʙᴀɴ ʙᴏᴛ
 
 ⭐ 🔫 ʙᴀɴ ғʀᴇᴇ ғɪʀᴇ ᴀᴄᴄᴏᴜɴᴛs
-⭐ 🔍 BAN CHECK - UID status check
+⭐ 📱 NUM TO INFO - Player details
 ⭐ 💰 ᴘᴀʏ & ɢᴇᴛ ᴜɴʟɪᴍɪᴛᴇᴅ
 ⭐ 🆓 𝟷 ғʀᴇᴇ ᴛʀɪᴀʟ
 
@@ -1234,7 +1477,7 @@ def about_cmd(message):
         print(f"❌ About error: {e}")
 
 # ============================================================
-# ADMIN COMMANDS (Buttons + Commands)
+# ADMIN COMMANDS
 # ============================================================
 
 @bot.message_handler(func=lambda m: m.text and stylish_text("🟢 ADMIN PANEL") in m.text)
@@ -1259,6 +1502,10 @@ def admin_panel_cmd(message):
 ⭐ /broadcastuser ID MSG - SEND
 ⭐ /allbroadcast MSG - ALL
 
+📱 NUM TO INFO SETTINGS:
+⭐ SET NUM TO INFO PRICE (button)
+⭐ SET NUM TO INFO FREE (button)
+
 ⭐ ═══════════════════════ ⭐
 """
     _send_pe(message.chat.id, text)
@@ -1282,6 +1529,10 @@ def stats_cmd(message):
 ⭐ 💳 ᴘʀɪᴄᴇ: ʀs.{settings.get('price', 99)}
 ⭐ 🏦 ᴜᴘɪ: {settings.get('upi', 'vanshx111@naviaxis')}
 ⭐ 👨‍💻 {settings.get('developer', '@iflexzyan')}
+
+📱 NUM TO INFO:
+⭐ 📱 ᴘʀɪᴄᴇ: ʀs.{settings.get('num_info_price', 10)}
+⭐ 🆓 ꜰʀᴇᴇ: {'✅' if settings.get('num_info_free', False) else '❌'}
 
 ⭐ ═══════════════════════ ⭐
 """
@@ -1407,6 +1658,10 @@ def all_commands_cmd(message):
 ⭐ /broadcastuser ID MSG - SEND
 ⭐ /allbroadcast MSG - ALL
 
+📱 NUM TO INFO:
+⭐ SET NUM TO INFO PRICE (button)
+⭐ SET NUM TO INFO FREE (button)
+
 ⭐ ═══════════════════════ ⭐
 """
     _send_pe(message.chat.id, text)
@@ -1478,7 +1733,7 @@ def save_token_video(message):
         _send_pe(message.chat.id, f"❌ sᴇɴᴅ ᴀ ᴠɪᴅᴇᴏ!")
 
 # ============================================================
-# COMMAND HANDLERS (Admin Commands)
+# COMMAND HANDLERS
 # ============================================================
 
 @bot.message_handler(commands=['approve'])
